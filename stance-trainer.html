@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stance Ref</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:     #080a0f;
+  --panel:  #0d1018;
+  --line:   #161b27;
+  --line2:  #1f2638;
+  --dim:    #3a4260;
+  --mid:    #6b7599;
+  --text:   #c8d0e8;
+  --bright: #eef2ff;
+  --acc:    #d4f542;
+  --red:    #ff4d6d;
+  --green:  #4dffb4;
+  --yellow: #ffdb58;
+  --blue:   #4db8ff;
+  --purple: #c084fc;
+  --orange: #ff9f51;
+  --cyan:   #38eaff;
+}
+html, body { height: 100%; overflow: hidden; }
+body { background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px; display: flex; flex-direction: column; }
+
+/* CHARACTER PICKER */
+.char-picker { display: flex; align-items: stretch; height: 100%; border-right: 1px solid var(--line2); flex-shrink: 0; position: relative; }
+.char-btn { display: flex; align-items: center; gap: 8px; padding: 0 16px; cursor: pointer; background: transparent; border: none; color: var(--text); font-family: 'DM Mono', monospace; font-size: 11px; white-space: nowrap; transition: background 0.12s; border-bottom: 2px solid transparent; }
+.char-btn:hover { background: #111622; }
+.char-name { font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--text); }
+.char-game { font-size: 9px; color: var(--dim); letter-spacing: 1px; }
+.char-caret { color: var(--dim); font-size: 10px; margin-left: 4px; transition: transform 0.15s; }
+.char-picker.open .char-caret { transform: rotate(180deg); }
+.char-drop { display: none; position: absolute; top: 100%; left: 0; min-width: 200px; background: var(--panel); border: 1px solid var(--line2); border-top: none; z-index: 50; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+.char-picker.open .char-drop { display: block; }
+.char-option { display: flex; flex-direction: column; gap: 2px; padding: 10px 16px; cursor: pointer; border-bottom: 1px solid var(--line); transition: background 0.1s; }
+.char-option:last-child { border-bottom: none; }
+.char-option:hover { background: #111622; }
+.char-option.active { background: #111622; border-left: 2px solid var(--acc); padding-left: 14px; }
+.char-option-name { font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--text); }
+.char-option.active .char-option-name { color: var(--acc); }
+.char-option-game { font-size: 9px; color: var(--dim); letter-spacing: 1px; }
+
+/* HEADER */
+header { display: flex; align-items: center; gap: 0; padding: 0 0 0 20px; border-bottom: 1px solid var(--line2); background: var(--panel); flex-shrink: 0; height: 46px; }
+.wordmark { font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 13px; letter-spacing: 4px; color: var(--acc); margin-right: 24px; white-space: nowrap; }
+.wordmark span { color: var(--dim); font-weight: 400; }
+.tabs { display: flex; align-items: stretch; height: 100%; flex: 1; overflow-x: auto; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.stab { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 22px; border-right: 1px solid var(--line2); cursor: pointer; transition: background 0.12s; gap: 1px; min-width: 90px; border-bottom: 2px solid transparent; }
+.stab:hover { background: #111622; }
+.stab.active { background: #111622; border-bottom-color: var(--acc); }
+.stab-id { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 700; color: var(--mid); letter-spacing: 2px; transition: color 0.12s; }
+.stab.active .stab-id { color: var(--acc); }
+.stab-label { font-size: 9px; color: var(--dim); letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
+.stab.active .stab-label { color: var(--mid); }
+
+/* FILTERBAR */
+.filterbar { display: flex; align-items: center; padding: 0 16px; gap: 6px; height: 36px; border-bottom: 1px solid var(--line); flex-shrink: 0; background: var(--bg); overflow-x: auto; scrollbar-width: none; }
+.filterbar::-webkit-scrollbar { display: none; }
+.fsep { width: 1px; height: 16px; background: var(--line2); margin: 0 4px; flex-shrink: 0; }
+.flbl { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dim); flex-shrink: 0; }
+.fchip { font-family: 'DM Mono', monospace; font-size: 10px; padding: 2px 10px; border: 1px solid var(--line2); background: transparent; color: var(--mid); cursor: pointer; border-radius: 2px; transition: all 0.1s; flex-shrink: 0; white-space: nowrap; }
+.fchip:hover { color: var(--text); border-color: var(--dim); }
+.fchip.on { background: var(--line2); color: var(--bright); border-color: var(--mid); }
+.fchip.on.lvl-H  { border-color: var(--red);    color: var(--red); }
+.fchip.on.lvl-M  { border-color: var(--yellow); color: var(--yellow); }
+.fchip.on.lvl-L  { border-color: var(--green);  color: var(--green); }
+.fchip.on.lvl-SL { border-color: var(--blue);   color: var(--blue); }
+.fchip.on.tag    { border-color: var(--cyan);   color: var(--cyan); }
+
+/* MAIN */
+.main { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+.entry-bar { display: flex; align-items: center; gap: 8px; padding: 5px 20px; background: #0a0c13; border-bottom: 1px solid var(--line); flex-shrink: 0; flex-wrap: wrap; min-height: 32px; }
+.elbl { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--dim); flex-shrink: 0; }
+.echip { font-size: 11px; padding: 2px 10px; background: var(--line); border: 1px solid var(--line2); color: var(--text); border-radius: 2px; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; }
+.echip .ei { font-size: 9px; color: var(--mid); }
+.echip .pos { color: var(--green); font-size: 9px; }
+.echip .neg { color: var(--red); font-size: 9px; }
+.echip .neu { color: var(--dim); font-size: 9px; }
+
+.scroll-area { flex: 1; overflow-y: auto; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--line2) transparent; }
+.scroll-area::-webkit-scrollbar { width: 4px; }
+.scroll-area::-webkit-scrollbar-thumb { background: var(--line2); }
+
+/* TABLE */
+table { width: 100%; border-collapse: collapse; min-width: 700px; }
+thead th { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--dim); text-align: left; padding: 7px 12px 5px; border-bottom: 1px solid var(--line2); position: sticky; top: 0; background: var(--bg); z-index: 2; white-space: nowrap; }
+thead th.num { text-align: center; }
+thead th.sortable { cursor: pointer; user-select: none; transition: color 0.1s; }
+thead th.sortable:hover { color: var(--mid); }
+thead th.sort-asc, thead th.sort-desc { color: var(--acc); }
+thead th.sort-asc::after  { content: ' ↑'; }
+thead th.sort-desc::after { content: ' ↓'; }
+tbody tr { border-bottom: 1px solid var(--line); transition: background 0.08s; }
+tbody tr:hover { background: #111520; }
+tbody tr.hidden { display: none; }
+td { padding: 6px 12px; vertical-align: middle; white-space: nowrap; }
+
+.col-input { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--cyan); min-width: 200px; }
+.ntag { font-size: 9px; color: var(--purple); background: rgba(192,132,252,0.1); border: 1px solid rgba(192,132,252,0.25); padding: 0 4px; border-radius: 2px; margin-right: 4px; }
+.htag { font-size: 9px; color: var(--orange); background: rgba(255,159,81,0.1); border: 1px solid rgba(255,159,81,0.25); padding: 0 4px; border-radius: 2px; margin-right: 4px; }
+
+.col-i { text-align: center; font-size: 12px; color: var(--text); min-width: 58px; }
+.col-i em { font-style: normal; font-size: 10px; color: var(--dim); }
+.col-f { text-align: center; font-size: 12px; min-width: 62px; }
+.pos { color: var(--green); }
+.neg { color: var(--red); }
+.neu { color: var(--dim); }
+
+.col-lvl { min-width: 100px; }
+.lvl { display: inline-flex; align-items: center; justify-content: center; font-family: 'Orbitron', sans-serif; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 2px; margin-right: 2px; border: 1px solid; }
+.lvl-H   { color: var(--red);    border-color: rgba(255,77,109,0.4);  background: rgba(255,77,109,0.08); }
+.lvl-M   { color: var(--yellow); border-color: rgba(255,219,88,0.35); background: rgba(255,219,88,0.07); }
+.lvl-L   { color: var(--green);  border-color: rgba(77,255,180,0.35); background: rgba(77,255,180,0.07); }
+.lvl-SL  { color: var(--blue);   border-color: rgba(77,184,255,0.35); background: rgba(77,184,255,0.07); }
+.lvl-unb { color: var(--red);    border-color: rgba(255,77,109,0.6);  background: rgba(255,77,109,0.12); font-weight:900; }
+
+.col-props { min-width: 260px; }
+.prop { display: inline-block; font-size: 9px; padding: 1px 6px; border-radius: 2px; margin-right: 3px; border: 1px solid; white-space: nowrap; }
+.prop-Tornado     { color: var(--yellow); border-color: rgba(255,219,88,0.3);   background: rgba(255,219,88,0.06); }
+.prop-Launcher    { color: var(--purple); border-color: rgba(192,132,252,0.3);  background: rgba(192,132,252,0.06); }
+.prop-WallSplat   { color: var(--red);    border-color: rgba(255,77,109,0.25);  background: rgba(255,77,109,0.05); }
+.prop-FloorBreak  { color: var(--orange); border-color: rgba(255,159,81,0.3);   background: rgba(255,159,81,0.06); }
+.prop-ForceCrouch { color: var(--blue);   border-color: rgba(77,184,255,0.3);   background: rgba(77,184,255,0.06); }
+.prop-Homing      { color: var(--cyan);   border-color: rgba(56,234,255,0.3);   background: rgba(56,234,255,0.05); }
+.prop-HeatEngager { color: var(--red);    border-color: rgba(255,77,109,0.45);  background: rgba(255,77,109,0.1); }
+.prop-Unblockable { color: var(--red);    border-color: rgba(255,77,109,0.55);  background: rgba(255,77,109,0.11); font-weight:500; }
+.prop-Grab        { color: var(--acc);    border-color: rgba(212,245,66,0.3);   background: rgba(212,245,66,0.05); }
+.trans { font-size: 9px; color: var(--acc); background: rgba(212,245,66,0.07); border: 1px solid rgba(212,245,66,0.2); padding: 1px 6px; border-radius: 2px; margin-left: 2px; }
+
+.no-rows { display: none; padding: 32px; text-align: center; color: var(--dim); font-size: 11px; letter-spacing: 1px; }
+.no-rows.show { display: block; }
+
+/* FOOTER */
+footer { border-top: 1px solid var(--line); background: var(--panel); padding: 5px 20px; display: flex; gap: 18px; align-items: center; flex-wrap: wrap; flex-shrink: 0; }
+.leg { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--mid); white-space: nowrap; }
+.leg b { font-family: 'DM Mono', monospace; font-weight: 500; color: var(--text); }
+.legsep { width: 1px; height: 14px; background: var(--line2); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wordmark">STANCE<span>·REF</span></div>
+  <div class="char-picker" id="charPicker">
+    <button class="char-btn" onclick="toggleCharDrop()">
+      <div>
+        <div class="char-name" id="charName">—</div>
+        <div class="char-game" id="charGame">—</div>
+      </div>
+      <span class="char-caret">▾</span>
+    </button>
+    <div class="char-drop" id="charDrop"></div>
+  </div>
+  <div class="tabs" id="tabs"></div>
+</header>
+
+<div class="filterbar">
+  <span class="flbl">Level</span>
+  <button class="fchip lvl-H"  data-lvl="H"  onclick="toggleLvl(this)">H</button>
+  <button class="fchip lvl-M"  data-lvl="M"  onclick="toggleLvl(this)">M</button>
+  <button class="fchip lvl-L"  data-lvl="L"  onclick="toggleLvl(this)">L</button>
+  <button class="fchip lvl-SL" data-lvl="SL" onclick="toggleLvl(this)">SL</button>
+  <div class="fsep"></div>
+  <span class="flbl">Tags</span>
+  <button class="fchip tag" data-prop="Launcher"    onclick="toggleProp(this)">Launcher</button>
+  <button class="fchip tag" data-prop="Tornado"     onclick="toggleProp(this)">Tornado</button>
+  <button class="fchip tag" data-prop="WallSplat"   onclick="toggleProp(this)">WallSplat</button>
+  <button class="fchip tag" data-prop="Homing"      onclick="toggleProp(this)">Homing</button>
+  <button class="fchip tag" data-prop="ForceCrouch" onclick="toggleProp(this)">ForceCrouch</button>
+  <button class="fchip tag" data-prop="FloorBreak"  onclick="toggleProp(this)">FloorBreak</button>
+  <button class="fchip tag" data-prop="HeatEngager" onclick="toggleProp(this)">Heat</button>
+  <button class="fchip tag" data-prop="Unblockable" onclick="toggleProp(this)">Unblockable</button>
+</div>
+
+<div class="main">
+  <div class="entry-bar" id="entryBar"></div>
+  <div class="scroll-area">
+    <table>
+      <thead>
+        <tr>
+          <th>Input</th>
+          <th class="num sortable sort-asc" data-col="i"   onclick="setSort('i')">Startup</th>
+          <th class="num sortable"          data-col="oB"  onclick="setSort('oB')">Block</th>
+          <th class="num sortable"          data-col="oH"  onclick="setSort('oH')">Hit</th>
+          <th class="num">C.Hit</th>
+          <th>Level</th>
+          <th>Properties / Transition</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div class="no-rows" id="noRows">No moves match current filters</div>
+  </div>
+</div>
+
+<footer>
+  <div class="leg"><b>i#</b> startup</div>
+  <div class="legsep"></div>
+  <div class="leg"><b class="pos">+#</b> your turn</div>
+  <div class="leg"><b class="neg">−#</b> their turn</div>
+  <div class="legsep"></div>
+  <div class="leg"><span class="lvl lvl-H">H</span> High</div>
+  <div class="leg"><span class="lvl lvl-M">M</span> Mid</div>
+  <div class="leg"><span class="lvl lvl-L">L</span> Low</div>
+  <div class="leg"><span class="lvl lvl-SL">SL</span> Spec.Low</div>
+  <div class="legsep"></div>
+  <div class="leg"><b>Block</b>=oB &nbsp;·&nbsp; <b>Hit</b>=oH &nbsp;·&nbsp; <b>C.Hit</b>=oCH</div>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  CHARACTER DATA
+//  To add a character: copy the structure below and append
+//  a new object to CHARACTERS. No other changes needed.
+// ═══════════════════════════════════════════════════════
+const CHARACTERS = [
+  {
+    id: "yoshimitsu",
+    name: "Yoshimitsu",
+    game: "Tekken 8",
+    stances: [
+      { id:"FLE", name:"Flea", input:"d+1+2",
+        entries:[
+          {input:"uf+1,1", i:17, oB:-9,  oH:9 },
+          {input:"uf+3+4", i:31, oB:-16, oH:-4},
+        ],
+        moves:[
+          {input:"FLE.f,f",   i:17, oB:-10, oH:1,  oCH:null, lvl:["M","M","M","M","M"], props:[]},
+          {input:"FLE.1+2",   i:18, oB:-9,  oH:4,  oCH:31,   lvl:["M"],                 props:["Tornado"]},
+          {input:"FLE.2",     i:24, oB:-12, oH:30, oCH:null, lvl:["L"],                 props:[]},
+          {input:"FLE.3+4",   i:25, oB:-13, oH:52, oCH:null, lvl:["M"],                 props:["Tornado","Launcher"]},
+          {input:"FLE.u+3+4", i:38, oB:4,   oH:21, oCH:null, lvl:["M"],                 props:["WallSplat"]},
+          {input:"FLE.uf",    i:30, oB:10,  oH:32, oCH:null, lvl:[],                    props:[]},
+          {input:"WFL.3",     i:17, oB:-16, oH:2,  oCH:null, lvl:["M"],                 props:["WallSplat"],  to:"FLE"},
+          {input:"WFL.4",     i:23, oB:-9,  oH:15, oCH:null, lvl:["L"],                 props:["ForceCrouch"],to:"IND"},
+        ]},
+      { id:"DGF", name:"Manji Dragonfly", input:"u+1+2",
+        entries:[
+          {input:"3,1",       i:15,  oB:7,   oH:18 },
+          {input:"3~4.u",     i:17,  oB:-6,  oH:3  },
+          {input:"uf+1+3",    i:null,oB:null,oH:null},
+          {input:"uf+3+4",    i:31,  oB:-16, oH:-4 },
+          {input:"FLE.u+1+2", i:null,oB:null,oH:null},
+          {input:"IND.u+1+2", i:null,oB:null,oH:null},
+          {input:"KIN.u+1+2", i:null,oB:null,oH:null},
+        ],
+        moves:[
+          {input:"DGF.3+4",     i:null,oB:null,oH:null,oCH:null, lvl:["H"],        props:["Unblockable","Grab"],    to:"DGF"},
+          {input:"DGF.2",       i:16,  oB:4,   oH:13, oCH:null, lvl:["H"],        props:[]},
+          {input:"DGF.2,4",     i:16,  oB:-14, oH:15, oCH:null, lvl:["H","M"],    props:["Tornado"]},
+          {input:"DGF.f+1+2",   i:16,  oB:-2,  oH:18, oCH:null, lvl:["H","H","H"],props:["Homing","WallSplat"]},
+          {input:"DGF.f+1+2",   i:16,  oB:4,   oH:18, oCH:null, lvl:["H","H","H"],props:["Homing","WallSplat"], nss:"H"},
+          {input:"DGF.4",       i:18,  oB:-4,  oH:14, oCH:null, lvl:["M"],        props:["HeatEngager","WallSplat"]},
+          {input:"DGF.f+2",     i:20,  oB:7,   oH:19, oCH:null, lvl:["H"],        props:["Homing","WallSplat"]},
+          {input:"DGF.3",       i:22,  oB:-13, oH:6,  oCH:28,   lvl:["L"],        props:["ForceCrouch"]},
+          {input:"DGF.1",       i:30,  oB:-2,  oH:10, oCH:46,   lvl:["M"],        props:["FloorBreak","ForceCrouch"]},
+          {input:"DGF.1",       i:30,  oB:2,   oH:46, oCH:null, lvl:["M"],        props:["FloorBreak"], nss:"H"},
+        ]},
+      { id:"KIN", name:"Kinsho", input:"1+2",
+        entries:[
+          {input:"2,2",        i:11, oB:-1,  oH:15},
+          {input:"df+1+4",     i:20, oB:-17, oH:35},
+          {input:"f,F+3",      i:23, oB:-4,  oH:5 },
+          {input:"b+2",        i:14, oB:-9,  oH:2 },
+          {input:"b+2,NSS.1",  i:14, oB:-17, oH:28},
+          {input:"f,n,d,df+1", i:17, oB:-17, oH:35},
+          {input:"ws4",        i:11, oB:-6,  oH:5 },
+        ],
+        moves:[
+          {input:"KIN.1",         i:17, oB:-12, oH:-1, oCH:null, lvl:["M"],          props:["FloorBreak"]},
+          {input:"KIN.1,1",       i:17, oB:-9,  oH:7,  oCH:null, lvl:["M","M","M"],  props:["FloorBreak","ForceCrouch"]},
+          {input:"KIN.1,1",       i:17, oB:-1,  oH:37, oCH:null, lvl:["M","M","M"],  props:["FloorBreak","ForceCrouch"], nss:"NSS"},
+          {input:"KIN.1+2",       i:12, oB:-6,  oH:11, oCH:null, lvl:["M","M","M","M"],props:["FloorBreak"]},
+          {input:"KIN.1+4",       i:10, oB:-20, oH:14, oCH:null, lvl:["M"],          props:["ForceCrouch"]},
+          {input:"KIN.1+4",       i:12, oB:-20, oH:14, oCH:null, lvl:["M"],          props:["Launcher"], nss:"NSS"},
+          {input:"KIN.2",         i:21, oB:-14, oH:26, oCH:null, lvl:["M"],          props:[]},
+          {input:"KIN.2,1+2",     i:21, oB:-15, oH:2,  oCH:null, lvl:["M","M"],      props:["WallSplat","FloorBreak"]},
+          {input:"KIN.2,1+2 ★",  i:21, oB:2,   oH:2,  oCH:null, lvl:["M","M"],      props:["WallSplat","FloorBreak"]},
+          {input:"KIN.2,1+2",     i:21, oB:-3,  oH:15, oCH:null, lvl:["M","M"],      props:["WallSplat","FloorBreak"], nss:"NSS"},
+          {input:"KIN.2,1+2 ★",  i:21, oB:-11, oH:69, oCH:null, lvl:["M","M"],      props:["WallSplat","FloorBreak"], nss:"NSS"},
+          {input:"KIN.3",         i:25, oB:-16, oH:13, oCH:25,   lvl:["L"],          props:[]},
+          {input:"KIN.4",         i:16, oB:20,  oH:49, oCH:null, lvl:["H"],          props:["Homing","WallSplat"], to:"KIN/MED"},
+          {input:"KIN.b+1+2",     i:46, oB:null,oH:6,  oCH:null, lvl:["M!"],         props:["Unblockable"]},
+          {input:"KIN.b+2",       i:15, oB:-9,  oH:2,  oCH:null, lvl:["M"],          props:[]},
+          {input:"KIN.b+2,1",     i:15, oB:-12, oH:30, oCH:null, lvl:["M","M"],      props:["Tornado"]},
+          {input:"KIN.d+1",       i:23, oB:-13, oH:3,  oCH:38,   lvl:["L"],          props:[], to:"FC"},
+          {input:"KIN.d+1",       i:23, oB:-13, oH:3,  oCH:38,   lvl:["L"],          props:[], nss:"NSS"},
+          {input:"KIN.f+1",       i:19, oB:-5,  oH:-2, oCH:null, lvl:["M","M","M"],  props:[]},
+          {input:"KIN.f+1",       i:19, oB:-5,  oH:18, oCH:null, lvl:["M","M","M"],  props:[], nss:"NSS"},
+          {input:"KIN.f+1 ★",    i:19, oB:-12, oH:29, oCH:null, lvl:["M","M","M"],  props:[]},
+          {input:"KIN.f+1 ★",    i:19, oB:-5,  oH:29, oCH:null, lvl:["M","M","M"],  props:[], nss:"NSS"},
+          {input:"KIN.f+1+2",     i:24, oB:14,  oH:14, oCH:49,   lvl:["M"],          props:["ForceCrouch"], to:"FLE"},
+          {input:"KIN.f+1+2",     i:24, oB:14,  oH:14, oCH:49,   lvl:["M"],          props:["ForceCrouch"], to:"FLE", nss:"NSS"},
+          {input:"KIN.f+2",       i:12, oB:-1,  oH:9,  oCH:null, lvl:["H"],          props:["Homing","HeatEngager","WallSplat"]},
+        ]},
+      { id:"MED", name:"Meditation", input:"3+4",
+        entries:[
+          {input:"KIN.4", i:16, oB:20, oH:49},
+        ],
+        moves:[
+          {input:"MED.1",   i:null,oB:null,oH:null,oCH:null, lvl:["L"],     props:[],              to:"BackTurn"},
+          {input:"MED.1+2", i:30,  oB:null,oH:null,oCH:null, lvl:["M!"],    props:["Unblockable"]},
+          {input:"MED.1+4", i:6,   oB:-20, oH:14, oCH:null,  lvl:["M"],     props:["ForceCrouch"]},
+          {input:"MED.3",   i:17,  oB:2,   oH:43, oCH:null,  lvl:["M","M"], props:["FloorBreak"]},
+        ]},
+      { id:"IND", name:"Indian Stance", input:"d+3+4",
+        entries:[
+          {input:"db+3,3,3,3,3", i:null,oB:null,oH:null},
+          {input:"FLE.d+3+4",    i:null,oB:null,oH:null},
+          {input:"WFL.4",        i:23,  oB:-9,  oH:15 },
+        ],
+        moves:[
+          {input:"IND.1",     i:53, oB:null,oH:null,oCH:null, lvl:["M!"],   props:["Unblockable"]},
+          {input:"IND.2",     i:39, oB:-9,  oH:2,  oCH:null, lvl:["M"],    props:[], to:"FC"},
+          {input:"IND.3",     i:32, oB:-31, oH:-2, oCH:null, lvl:["M"],    props:["WallSplat"]},
+          {input:"IND.3,3+4", i:32, oB:-13, oH:52, oCH:null, lvl:["M"],    props:["Tornado","Launcher"]},
+          {input:"IND.3+4",   i:17, oB:-6,  oH:3,  oCH:null, lvl:["M","M"],props:["Homing"]},
+          {input:"IND.4",     i:47, oB:-26, oH:-4, oCH:31,   lvl:["L"],    props:["Homing","ForceCrouch"]},
+          {input:"IND.1",     i:48, oB:-8,  oH:5,  oCH:null, lvl:["M"],    props:["FloorBreak","ForceCrouch"], nss:"NSS"},
+        ]},
+      { id:"FC", name:"Full Crouch", input:null,
+        entries:[],
+        moves:[
+          {input:"FC.d+1",      i:10, oB:-5,  oH:6,   oCH:null, lvl:["SL"],    props:[]},
+          {input:"FC.d+2",      i:11, oB:-4,  oH:5,   oCH:null, lvl:["SL"],    props:[], to:"FC"},
+          {input:"FC.d+3",      i:16, oB:-17, oH:-6,  oCH:null, lvl:["L"],     props:[], to:"FC"},
+          {input:"FC.d+4",      i:12, oB:-15, oH:-4,  oCH:null, lvl:["L"],     props:[], to:"FC"},
+          {input:"FC.db+3",     i:18, oB:-25, oH:-14, oCH:null, lvl:["L"],     props:[], to:"FC"},
+          {input:"FC.df+1",     i:26, oB:null,oH:70,  oCH:null, lvl:["L!"],    props:["Unblockable"]},
+          {input:"FC.df+4",     i:18, oB:-26, oH:4,   oCH:31,   lvl:["L"],     props:["Homing","ForceCrouch","Launcher"], to:"IND"},
+          {input:"FC.df+1",     i:25, oB:-16, oH:27,  oCH:null, lvl:["L"],     props:[], to:"NSS", nss:"NSS"},
+          {input:"FC.df+1,2",   i:25, oB:-14, oH:14,  oCH:null, lvl:["L","L"], props:["FloorBreak"], to:"NSS", nss:"NSS"},
+          {input:"FC.df+3",     i:20, oB:-26, oH:-67, oCH:null, lvl:["L"],     props:[], to:"FC", nss:"NSS"},
+        ]},
+      { id:"BDS", name:"Bad Stomach", input:"db+3+4",
+        entries:[],
+        moves:[
+          {input:"BDS.1", i:10, oB:-5, oH:6, oCH:null, lvl:["SL"], props:[]},
+          {input:"BDS.3", i:11, oB:-4, oH:5, oCH:null, lvl:["SL"], props:[], to:"FC"},
+        ]},
+    ]
+  },
+
+  {
+    id: "jin",
+    name: "Jin",
+    game: "Tekken 8",
+    stances: [
+      { id:"ZEN", name:"Zen Stance", input:"f+3+4",
+        entries:[
+          {input:"b+3+4",     i:null,oB:null, oH:null},
+          {input:"2,4.f",     i:10,  oB:-13,  oH:7  },
+          {input:"3,1.f",     i:14,  oB:-1,   oH:7  },
+          {input:"f+3,3.f",   i:14,  oB:-8,   oH:8  },
+          {input:"f+4.f",     i:16,  oB:-8,   oH:8  },
+          {input:"b+3.f",     i:16,  oB:-6,   oH:5  },
+          {input:"b,f+2,3",   i:16,  oB:-9,   oH:6  },
+          {input:"ws1,2",     i:16,  oB:-8,   oH:3  },
+          {input:"FC.df+4",   i:21,  oB:-26,  oH:2  },
+          {input:"f,f,F+3",   i:22,  oB:6,    oH:13 },
+          {input:"uf+3+4",    i:31,  oB:-16,  oH:-4 },
+        ],
+        moves:[
+          {input:"ZEN.u+1", i:14, oB:-16, oH:31, oCH:null, lvl:["M"],     props:["Tornado"]},
+          {input:"ZEN.1",   i:16, oB:-3,  oH:8,  oCH:null, lvl:["M"],     props:[]},
+          {input:"ZEN.1,2", i:16, oB:-14, oH:32, oCH:null, lvl:["M","M"], props:["HeatEngager","WallSplat"], to:"BKS"},
+          {input:"ZEN.1,3", i:16, oB:0,   oH:null,oCH:null,lvl:["M","HT"],props:[]},
+          {input:"ZEN.3",   i:17, oB:-9,  oH:10, oCH:22,   lvl:["M"],     props:["Homing","WallSplat"]},
+          {input:"ZEN.1+2", i:21, oB:-14, oH:4,  oCH:null, lvl:["L","T"], props:[], to:"FC"},
+          {input:"ZEN.2",   i:21, oB:-5,  oH:17, oCH:null, lvl:["H"],     props:["Homing","PowerCrush","WallSplat"]},
+          {input:"ZEN.3+4", i:21, oB:9,   oH:19, oCH:null, lvl:["H"],     props:["WallSplat"], to:"BKS"},
+          {input:"ZEN.4",   i:27, oB:2,   oH:17, oCH:null, lvl:["M"],     props:["FloorBreak"]},
+        ]},
+      { id:"FC", name:"Full Crouch", input:null,
+        entries:[
+          {input:"d+2",     i:22, oB:-14, oH:4},
+          {input:"ZEN.1+2", i:21, oB:-14, oH:4},
+        ],
+        moves:[
+          {input:"FC.df+4", i:21, oB:-26, oH:2, oCH:69, lvl:["L"], props:["ForceCrouch"], to:"ZEN"},
+        ]},
+      { id:"BKS", name:"Breaking Step", input:"f+3+4 / b+3+4",
+        entries:[
+          {input:"ws1,3~3",  i:13, oB:6,  oH:13},
+          {input:"df+2",     i:16, oB:-9, oH:6 },
+          {input:"ZEN.1,2",  i:16, oB:-14,oH:32},
+          {input:"ZEN.3+4",  i:21, oB:9,  oH:19},
+          {input:"df+3~3",   i:23, oB:6,  oH:13},
+        ],
+        moves:[
+          {input:"CD.2",   i:14, oB:-10, oH:74, oCH:null, lvl:["H"], props:["WallSplat","Launcher"]},
+          {input:"CD.2:",  i:14, oB:5,   oH:76, oCH:null, lvl:["H"], props:["WallSplat","Launcher"]},
+          {input:"CD.1",   i:16, oB:-13, oH:36, oCH:null, lvl:["M"], props:["Tornado","Launcher"]},
+          {input:"CD.1:",  i:16, oB:-13, oH:31, oCH:null, lvl:["M"], props:["Tornado","Launcher"]},
+          {input:"CD.4,2", i:20, oB:-16, oH:21, oCH:null, lvl:["L","M"], props:["WallSplat","FloorBreak"]},
+        ]},
+      { id:"DVS", name:"Devil Step", input:null,
+        entries:[
+          {input:"H.db+1+2",  i:19, oB:3, oH:23},
+          {input:"H.f,F+1+2", i:25, oB:5, oH:18},
+        ],
+        moves:[
+          {input:"DVS.2",    i:14, oB:4,   oH:38, oCH:null, lvl:["M"], props:["Tornado","Launcher"]},
+          {input:"DVS.4",    i:16, oB:-12, oH:-2, oCH:null, lvl:["L"], props:["ForceCrouch"]},
+          {input:"DVS.4,4",  i:16, oB:-14, oH:3,  oCH:null, lvl:["L","M"], props:["ForceCrouch","FloorBreak"]},
+          {input:"DVS.1",    i:20, oB:-13, oH:72, oCH:null, lvl:["M"], props:["Tornado","Launcher"]},
+          {input:"DVS.3",    i:26, oB:2,   oH:22, oCH:null, lvl:["M"], props:["Tornado","FloorBreak"]},
+          {input:"DVS.df+3", i:33, oB:-23, oH:-2, oCH:null, lvl:["L"], props:[]},
+        ]},
+    ]
+  },
+
+  // ── ADD NEW CHARACTERS BELOW ──────────────────────────
+  // {
+  //   id: "character_id",       // unique slug
+  //   name: "Character Name",
+  //   game: "Game Title",
+  //   stances: [
+  //     { id:"ST1", name:"Stance Name", input:"input_notation",
+  //       entries: [
+  //         { input:"move_that_enters", i:15, oB:-5, oH:8 },
+  //       ],
+  //       moves: [
+  //         { input:"ST1.1", i:15, oB:-5, oH:8, oCH:null, lvl:["M"], props:["Launcher"] },
+  //       ]
+  //     },
+  //   ]
+  // },
+];
+
+// ═══════════════════════════════════════════════════════
+//  APP STATE
+// ═══════════════════════════════════════════════════════
+let activeChar   = CHARACTERS[0].id;
+let activeId     = CHARACTERS[0].stances[0].id;
+let activeLvls   = new Set();
+let activeProps  = new Set();
+let sortCol      = 'i';
+let sortDir      = 1;
+
+// ═══════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════
+const fv = v => (v===null||v===undefined) ? '—' : (v>0?`+${v}`:`${v}`);
+const fc = v => (v===null||v===undefined) ? 'neu' : v>0?'pos':v<0?'neg':'neu';
+const getChar    = () => CHARACTERS.find(c => c.id === activeChar);
+const getStances = () => getChar().stances;
+const getStance  = () => getStances().find(s => s.id === activeId);
+
+function cmpVal(a, b) {
+  const an = (a===null||a===undefined), bn = (b===null||b===undefined);
+  if (an && bn) return 0; if (an) return 1; if (bn) return -1;
+  return (a - b) * sortDir;
+}
+function sortMoves(moves) { return [...moves].sort((a,b) => cmpVal(a[sortCol], b[sortCol])); }
+
+function lvlBadge(l) {
+  if (l.includes('!')) return `<span class="lvl lvl-unb">${l}</span>`;
+  const map = {H:'lvl-H',M:'lvl-M',L:'lvl-L',SL:'lvl-SL'};
+  return `<span class="lvl ${map[l]||'lvl-M'}">${l}</span>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  CHARACTER PICKER
+// ═══════════════════════════════════════════════════════
+function buildCharDrop() {
+  const ch = getChar();
+  document.getElementById('charName').textContent = ch.name;
+  document.getElementById('charGame').textContent = ch.game;
+  document.getElementById('charDrop').innerHTML = CHARACTERS.map(c => `
+    <div class="char-option ${c.id===activeChar?'active':''}" onclick="switchChar('${c.id}')">
+      <div class="char-option-name">${c.name}</div>
+      <div class="char-option-game">${c.game}</div>
+    </div>`).join('');
+}
+
+function toggleCharDrop() {
+  document.getElementById('charPicker').classList.toggle('open');
+}
+
+function switchChar(id) {
+  activeChar = id;
+  activeId   = CHARACTERS.find(c=>c.id===id).stances[0].id;
+  document.getElementById('charPicker').classList.remove('open');
+  // reset filters & sort when switching character
+  activeLvls.clear(); activeProps.clear();
+  document.querySelectorAll('.fchip').forEach(el => el.classList.remove('on'));
+  sortCol = 'i'; sortDir = 1;
+  document.querySelectorAll('thead th.sortable').forEach(th => {
+    th.classList.remove('sort-asc','sort-desc');
+    if (th.dataset.col==='i') th.classList.add('sort-asc');
+  });
+  buildCharDrop();
+  buildTabs();
+  sw(activeId, false);
+}
+
+// close dropdown when clicking outside
+document.addEventListener('click', e => {
+  const picker = document.getElementById('charPicker');
+  if (!picker.contains(e.target)) picker.classList.remove('open');
+});
+
+// ═══════════════════════════════════════════════════════
+//  STANCE TABS
+// ═══════════════════════════════════════════════════════
+function buildTabs() {
+  document.getElementById('tabs').innerHTML = getStances().map(s=>`
+    <div class="stab ${s.id===activeId?'active':''}" id="tab-${s.id}" onclick="sw('${s.id}')">
+      <div class="stab-id">${s.id}</div>
+      <div class="stab-label">${s.name}</div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+//  ENTRY BAR
+// ═══════════════════════════════════════════════════════
+function buildEntry(stance) {
+  const el = document.getElementById('entryBar');
+  if (!stance.entries || !stance.entries.length) {
+    el.innerHTML = `<span class="elbl">Entry</span><span style="color:var(--dim);font-size:11px;letter-spacing:1px;">various</span>`;
+    return;
+  }
+  let h = `<span class="elbl">Entry</span>`;
+  stance.entries.forEach(e => {
+    let x = '';
+    if (e.i)  x += `<span class="ei">i${e.i}</span>`;
+    if (e.oB!==null && e.oB!==undefined) x += `<span class="${fc(e.oB)}">${fv(e.oB)} oB</span>`;
+    if (e.oH!==null && e.oH!==undefined) x += `<span class="${fc(e.oH)}">${fv(e.oH)} oH</span>`;
+    h += `<div class="echip">${e.input}${x}</div>`;
+  });
+  el.innerHTML = h;
+}
+
+// ═══════════════════════════════════════════════════════
+//  MOVE TABLE
+// ═══════════════════════════════════════════════════════
+function buildRows(stance) {
+  document.getElementById('tbody').innerHTML = sortMoves(stance.moves).map(m => {
+    let inp = m.input;
+    if (m.nss==='NSS') inp = `<span class="ntag">NSS</span>${m.input}`;
+    else if (m.nss==='H') inp = `<span class="htag">H</span>${m.input}`;
+    const lvlBadges = m.lvl.map(lvlBadge).join('');
+    const propBadges = (m.props||[]).map(p=>`<span class="prop prop-${p}">${p}</span>`).join('');
+    const transHtml = m.to ? `<span class="trans">→ ${m.to}</span>` : '';
+    const lvlData = m.lvl.map(l=>l.replace('!','')).join(',');
+    const propData = (m.props||[]).join(',');
+    return `<tr data-lvls="${lvlData}" data-props="${propData}">
+      <td class="col-input">${inp}</td>
+      <td class="col-i">${m.i ? `<em>i</em>${m.i}` : '—'}</td>
+      <td class="col-f ${fc(m.oB)}">${fv(m.oB)}</td>
+      <td class="col-f ${fc(m.oH)}">${fv(m.oH)}</td>
+      <td class="col-f ${fc(m.oCH)}">${(m.oCH!==null&&m.oCH!==undefined)?fv(m.oCH):'—'}</td>
+      <td class="col-lvl">${lvlBadges}</td>
+      <td class="col-props">${propBadges}${transHtml}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+//  FILTERS
+// ═══════════════════════════════════════════════════════
+function applyFilter() {
+  let vis = 0;
+  document.querySelectorAll('#tbody tr').forEach(r => {
+    const lvls  = r.dataset.lvls  ? r.dataset.lvls.split(',').filter(Boolean)  : [];
+    const props = r.dataset.props ? r.dataset.props.split(',').filter(Boolean) : [];
+    let ok = true;
+    if (activeLvls.size  > 0) ok = lvls.some(l => activeLvls.has(l));
+    if (ok && activeProps.size > 0) ok = [...activeProps].every(p => props.includes(p));
+    r.classList.toggle('hidden', !ok);
+    if (ok) vis++;
+  });
+  document.getElementById('noRows').classList.toggle('show', vis===0);
+}
+
+function toggleLvl(el) {
+  const v = el.dataset.lvl;
+  activeLvls.has(v) ? (activeLvls.delete(v), el.classList.remove('on')) : (activeLvls.add(v), el.classList.add('on'));
+  applyFilter();
+}
+function toggleProp(el) {
+  const v = el.dataset.prop;
+  activeProps.has(v) ? (activeProps.delete(v), el.classList.remove('on')) : (activeProps.add(v), el.classList.add('on'));
+  applyFilter();
+}
+
+// ═══════════════════════════════════════════════════════
+//  SORT
+// ═══════════════════════════════════════════════════════
+function setSort(col) {
+  if (sortCol === col) { sortDir *= -1; } else { sortCol = col; sortDir = 1; }
+  document.querySelectorAll('thead th.sortable').forEach(th => {
+    th.classList.remove('sort-asc','sort-desc');
+    if (th.dataset.col === col) th.classList.add(sortDir===1?'sort-asc':'sort-desc');
+  });
+  buildRows(getStance());
+  applyFilter();
+}
+
+// ═══════════════════════════════════════════════════════
+//  SWITCH STANCE
+// ═══════════════════════════════════════════════════════
+function sw(id, scroll=true) {
+  activeId = id;
+  document.querySelectorAll('.stab').forEach(t=>t.classList.remove('active'));
+  const tab = document.getElementById(`tab-${id}`);
+  if (tab) tab.classList.add('active');
+  const s = getStance();
+  buildEntry(s);
+  buildRows(s);
+  applyFilter();
+  if (scroll) document.querySelector('.scroll-area').scrollTop = 0;
+}
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+buildCharDrop();
+buildTabs();
+sw(activeId, false);
+</script>
+</body>
+</html>
