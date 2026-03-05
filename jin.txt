@@ -1,0 +1,92 @@
+=================================================
+ZEN (f+3+4)
+=================================================
+
+---- Transition to ZEN:
+b+3+4
+2,4.f       => i10 | -13  oB | +7  oH |         | H,H    | WallSplat
+3,1.f       => i14 | -1   oB | +7  oH |         | H,H    |
+f+3,3.f     => i14 | -8   oB | +8  oH |         | M,H    |
+f+4.f       => i16 | -8   oB | +8  oH | +42 oCH | M      |
+b+3.f       => i16 | -6   oB | +5  oH |         | M      |
+b,f+2,3     => i16 | -9   oB | +6  oH |         | M,M    | 
+ws1,2       => i16 | -8   oB | +3  oH |         | M,M    | 
+FC.df+4     => i21 | -26  oB | +2  oH | +64 oCH | L      | ForceCrouch
+f,f,F+3     => i22 | +6   oB | +13 oH |         | M      | WallSplat
+
+uf+3+4    => i31 | -16 oB | -4  oH
+
++----------------------+
+| Options:             |
++----------------------+
+ZEN.u+1   => i14 | -16 oB | +31 oH |         | M         | Tornado
+ZEN.1     => i16 | -3  oB | +8  oH |         | M         |
+ZEN.1,2   => i16 | -14 oB | +32 oH |         | M,M       | HeatEngager, WallSplat, to: BKS (with DF)
+ZEN.1,3   => i16 |   0 oB | N/A oH |         | M, HT     |
+ZEN.3     => i17 | -9  oB | +10 oH | +22 oCH | M         | Homing, WallSplat
+ZEN.1+2   => i21 | -14 oB | +4  oH |         | L,T       | to: FC, CD (with DF)
+ZEN.2     => i21 | -5  oB | +17 oH |         | H         | Homing, PowerCrush, WallSplat
+ZEN.3+4   => i21 | +9  oB | +19 oH |         | H         | WallSplat, to: BKS (with DF)
+ZEN.4     => i27 | +2  oB | +17 oH |         | M         | FloorBreak
+FLE.db    => Cancel
+
+WFL.3     => i17 | -16 oB | +2  oH |         | M         | WallSplat, to: FLE
+WFL.4     => i23 | -9  oB | +15 oH |         | L         | ForceCrouch, to: IND
+
+FLE.d+3+4 => to: IND
+FLE.u+1+2 => to: DGF
+FLE.f+2   => to: DGF
+
+=================================================
+FC
+=================================================
+
+---- Transition to FC:
+d+2       => i22 | -14  oB | +4  oH |         | L        | ForceCrouch, to: FC
+ZEN.1+2   => i21 | -14 oB | +4  oH |         | L,T       | to: FC, CD (with DF)
+
+
++----------------------+
+| Options:             |
++----------------------+
+FC.df+4   => i21 | -26 oB | +2  oH | +69 oCH | L         | ForceCrouch
+
+=================================================
+BREAKING STEP
+=================================================
+
+---- Transition to BKS / CD:
+f+3+4
+b+3+4
+ws1,3~3   => i13 | +6  oB | +13 oH |         | M,M       | to: BKS (with DF)
+df+2      => i16 | -9  oB | +6  oH |         | M         | WallSplat, to: BKS (with DF)
+ZEN.1,2   => i16 | -14 oB | +32 oH |         | M,M       | HeatEngager, WallSplat, to: BKS (with DF)
+ZEN.3+4   => i21 | +9  oB | +19 oH |         | H         | WallSplat, to: BKS (with DF)
+df+3~3    => i23 | +6  oB | +13 oH |         | M         | to: BKS (with DF)
+
++----------------------+
+| Options:             |
++----------------------+
+CD.2      => i14 | -10 oB | +74 oH |         | H         | WallSplat, Launcher
+CD.2:     => i14 | +5  oB | +76 oH |         | H         | WallSplat, Launcher
+CD.1      => i16 | -13 oB | +36 oH |         | M         | Tornado, Launcher
+CD.1:     => i16 | -13 oB | +31 oH |         | M         | Tornado, Launcher
+CD.4,2    => i20 | -16 oB | +21 oH |         | L,M       | WallSplat, FloorBreak
+
+=================================================
+DVS
+=================================================
+
+---- Transition to DVS:
+H.db+1+2  => i19 | +3  oB | +23 oH |         | M         | PowerCrush, WallSplat
+H.f,F+1+2 => i25 | +5  oB | +18 oH |         | M         | WallSplat
+
++----------------------+
+| Options:             |
++----------------------+
+DVS.2     => i14 | +4  oB | +38 oH |         | M         | Tornado, Launcher
+DVS.4     => i16 | -12 oB | -2  oH |         | L         | ForceCrouch
+DVS.4,4   => i16 | -14 oB | +3  oH |         | L,M       | ForceCrouch, FloorBreak
+DVS.1     => i20 | -13 oB | +72 oH |         | M         | Tornado, Launcher
+DVS.3     => i26 | +2  oB | +22 oH |         | M         | Tornado, FloorBreak
+DVS.df+3  => i33 | -23 oB | -2  oH |         | L         |

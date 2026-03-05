@@ -1,0 +1,172 @@
+=================================================
+FLE (d+1+2)                                   
+=================================================
+
+---- Transition to FLE:
+uf+1,1    => i17 | -9  oB | +9  oH
+
+uf+3+4    => i31 | -16 oB | -4  oH
+
++----------------------+
+| Options:             |
++----------------------+
+FLE.f,f   => i17 | -10 oB | +1  oH |         | M,M,M,M,M |
+FLE.1+2   => i18 | -9  oB | +4  oH | +31 oCH | M         | Tornado
+FLE.2     => i24 | -12 oB | +30 oH |         | L         |
+FLE.3+4   => i25 | -13 oB | +52 oH |         | M         | Tornado, Launcher
+FLE.u+3+4 => i38 | +4  oB | +21 oH |         | M         | WallSplat
+FLE.uf    => i30 | +10 oB | +32 oH
+FLE.d     => Duck
+FLE.3     => Move to the Left
+FLE.4     => Move to the Left
+FLE.db    => Cancel
+
+WFL.3     => i17 | -16 oB | +2  oH |         | M         | WallSplat, to: FLE
+WFL.4     => i23 | -9  oB | +15 oH |         | L         | ForceCrouch, to: IND
+
+FLE.d+3+4 => to: IND
+FLE.u+1+2 => to: DGF
+FLE.f+2   => to: DGF
+
+=================================================
+DGF (u+1+2)                                   
+=================================================
+
+---- Transition to DGF:
+3,1       => i15 | +7  oB | +18 oH
+3~4.u     => i17 | -6  oB | +3  oH
+uf+1+3 (DGF with 1+2)
+uf+3+4    => i31 | -16 oB | -4  oH
+FLE.u+1+2 
+IND.1~u+1+2
+IND.u+1+2
+KIN.u+1+2
+
++----------------------+
+| Options:             |
++----------------------+
+DGF.3+4      => Unbreakable grab | H  | (=> DGF)
+DGF.2        => i16 | +4  oB | +13 oH |         | H         |
+DGF.2,4      => i16 | -14 oB | +15 oH |         | H,M       | Tornado
+DGF.f+1+2    => i16 | -2  oB | +18 oH |         | HHH       | Homing, WallSplat
+H.DGF.f+1+2  => i16 | +4  oB | +18 oH |         | HHH       | Homing, WallSplat
+DGF.4        => i18 | -4  oB | +14 oH |         | M         | HeatEngager, WallSplat
+DGF.f+2      => i20 | +7  oB | +19 oH |         | H         | Homing, WallSplat
+DGF.3        => i22 | -13 oB | +6  oH | +28 oCH | L         | ForceCrouch
+DGF.1        => i30 | -2  oB | +10 oH | +46 oCH | M         | FloorBreak, ForceCrouch
+H.DGF.1      => i30 | +2  oB | +46 oH |         | M         | FloorBreak
+
+=================================================
+KIN (1+2)                                   
+=================================================
+
+---- Transition to KIN:
+2,2        => i11 | -1  oB | +15 oH |         | H,H
+df+1+4     => i20 | -17 oB | +35 oH |         | M
+f,F+3      => i23 | -4  oB | +5  oH |         | M
+b+2        => i14 | -9  oB | +2  oH |         | M
+b+2,NSS.1  => i14 | -17 oB | +28 oH |         | M,M
+f,n,d,df+1 => i17 | -17 oB | +35 oH |         | M
+ws4        => i11 | -6  oB | +5  oH |         | M
+
+
++----------------------+
+| Options:             |
++----------------------+
+KIN.1          => i17 | -12 oB | -1  oH |         | M       | FloorBreak
+KIN.1,1        => i17 | -9  oB | +7  oH |         | M,M,M   | FloorBreak, ForceCrouch
+KIN.NSS.1,1    => i17 | -1  oB | +37 oH |         | M,M,M   | FloorBreak, ForceCrouch
+KIN.1+2        => i12 | -6  oB | +11 oH |         | M,M,M,M | FloorBreak
+KIN.1+4        => i10 | -20 oB | +14 oH |         | M       | ForceCrouch
+KIN.NSS.1+4    => i12 | -20 oB | +14 oH |         | M       | Launcher
+KIN.2          => i21 | -14 oB | +26 oH |         | M       |
+KIN.2,1+2      => i21 | -15 oB | +2  oH |         | M,M     | WallSplat, FloorBreak
+KIN.2,1+2*     => i21 | +2  oB | +2  oH |         | M,M     | WallSplat, FloorBreak
+KIN.2,NSS.1+2  => i21 | -3  oB | +15 oH |         | M,M     | WallSplat, FloorBreak
+KIN.2,NSS.1+2* => i21 | -11 oB | +69 oH |         | M,M     | WallSplat, FloorBreak
+KIN.3          => i25 | -16 oB | +13 oH | +25 oCH | L       |
+KIN.4          => i16 | +20 oB | +49 oH |         | H       | Homing, WallSplat, to: KIN,MED
+KIN.b+1+2      => i46 | N/A oB | +6  oH |         | M!      | Unblockable
+KIN.b+2        => i15 | -9  oB | +2  oH |         | M       |
+KIN.b+2,1      => i15 | -12 oB | +30 oH |         | M,M     | Tornado
+KIN.d+1        => i23 | -13 oB | +3  oH | +38 oCH | L       | to: FC (DB)
+KIN.NSS.d+1    => i23 | -13 oB | +3  oH | +38 oCH | L       |
+KIN.f          => Move forward
+KIN.f+1        => i19 | -5  oB | -2  oH |         | M,M,M   |
+KIN.NSS.f+1    => i19 | -5  oB | +18 oH |         | M,M,M   |
+KIN.f+1*       => i19 | -12 oB | +29 oH |         | M,M,M*2 |
+KIN.NSS.f+1*   => i19 | -5  oB | +29 oH |         | M,M,M*2 |
+KIN.f+1+2      => i24 | +14 oB | +14 oH | +49 oCH | M       | ForceCrouch, to: FLE
+KIN.NSS.f+1+2  => i24 | +14 oB | +14 oH | +49 oCH | M       | ForceCrouch, to: FLE
+KIN.f+2        => i12 | -1  oB | +9  oH |         | H       | Homing, HeatEngager, WallSplat
+KIN.u+1+2      => to: DGF
+
+KIN.f          => Forward Dash (Auto-parries low)
+KIN.b      => Cancel
+
+=================================================
+MED (3+4)                                   
+=================================================
+
+---- Transition to MED:
+KIN.4          => i16 | +20 oB | +49 oH |         | H       | Homing, WallSplat, to: KIN,MED
+
++----------------------+
+| Options:             |
++----------------------+
+MED.1          => L
+MED.1+2        => i30 | M!
+MED.1+4        => i6  | -20 oB | +14 oH |         | M       | ForceCrouch
+MED.3          => i17 | +2  oB | +43 oH |         | M,M     | FloorBreak
+MED.1          => to: BackTurn
+MED.d          => Cancel
+MED.f          => Cancel, face opponent
+
+=================================================
+IND (d+3+4)                                   
+=================================================
+
+---- Transition to IND:
+db+3,3,3,3,3   => 
+
++----------------------+
+| Options:             |
++----------------------+
+
+IND.1          => i53 | M!
+IND.1+2        => to: FLE
+IND.2          => i39 | -9  oB | +2  oH |         | M       | to: FC
+IND.3          => i32 | -31 oB | -2  oH |         | M       | WallSplat
+IND.3,3+4      => i32 | -13 oB | +52 oH |         | M       | Tornado, launcher
+IND.3+4        => i17 | -6  oB | +3  oH |         | M,M     | Homing
+IND.4          => i47 | -26 oB | -4  oH | +31 oCH | L       | Homing, ForceCrouch
+IND.d+3+4*     => Mouvement aspirateur
+IND.f          => to: BackTurn
+IND.u          => Cancel
+IND.u+1+2      => to: DGF
+NSS.IND.1      => i48 | -8  oB | +5  oH |         | M       | FloorBreak, ForceCrouch
+
+=================================================
+FullCrouch (FC)
+=================================================
+
++----------------------+
+| Options:             |
++----------------------+
+
+FC.d+1         => i10 | -5  oB | +6  oH |         | SL      |
+FC.d+2         => i11 | -4  oB | +5  oH |         | SL      | to: FC
+FC.d+3         => i16 | -17 oB | -6  oH |         | L       | to: FC
+FC.d+4         => i12 | -15 oB | -4  oH |         | L       | to: FC
+FC.db+3        => i18 | -25 oB | -14 oH |         | L       | to: FC
+FC.df+1        => i26 | N/A oB | +70 oH |         | L!      |
+FC.df+4        => i18 | -26 oB | +4  oH | +31 oCH | L       | Homing, ForceCrouch, to: IND (3+4), FC, Launcher on CH
+NSS.FC.df+1    => i25 | -16 oB | +27 oH |         | L       | to: NSS, SS
+NSS.FC.df+1,2  => i25 | -14 oB | +14 oH |         | L,L     | FloorBreak, to: NSS, SS 
+NSS.FC.df+3    => i20 | -26 oB | -67 oH |         | L       | to: FC
+
+=================================================
+BDS (db+3+4)
+=================================================
+BDS.1         => i10 | -5  oB | +6  oH |         | SL      |
+BDS.3         => i11 | -4  oB | +5  oH |         | SL      | to: FC
